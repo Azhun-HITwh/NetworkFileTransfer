@@ -8,7 +8,7 @@
 #include <QEvent>
 #include <stdio.h>
 #include <string.h>
-#include <io.h>
+//#include <io.h>
 #include <iostream>
 //#include "seekfile.h"
 

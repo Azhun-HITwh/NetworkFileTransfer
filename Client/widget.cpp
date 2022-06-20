@@ -259,7 +259,7 @@ void Widget::on_pushButton_clicked()
     transferData.fileName = QFileDialog::getOpenFileName(this);
     if(!transferData.fileName.isEmpty())
     {
-       qDebug()<<tr("打开文件成功")<<endl;
+       qDebug()<<tr("open file successfully")<<endl;
     }
     //tempFileName = "./ClientFile/";
     /*打开文件是发送文件头信息*/

@@ -190,8 +190,9 @@ void Mysocket::reveiveData()
             transferfileflag = 1;
             if(transferData.fileNameSize != 0)
             {
-                QString tempfilename("./ReceiveFile/");
+                QString tempfilename("/Users/azhun/ReceiveFile/");
                 tempfilename += transferData.fileName;
+                qDebug()<<tempfilename;
                 /*创建本地文件*/
                 transferData.localFile = new QFile(tempfilename);
                 if(!transferData.localFile->open(QFile::WriteOnly))

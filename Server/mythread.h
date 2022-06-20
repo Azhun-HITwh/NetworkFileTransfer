@@ -14,7 +14,7 @@ protected:
     void run();
 signals:
     /*添加客户端IP地址到GUI*/
-    addClientIPToGUISignal(QString CIP,int ID,int state);
+    void addClientIPToGUISignal(QString CIP,int ID,int state);
     /*客户端主动断开连接信号*/
     void closeClientConnectSignal(int ID);
     /*客户端被动断开连接*/
