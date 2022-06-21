@@ -27,7 +27,7 @@ void Myserver::incomingConnection(qintptr socketDescriptor)
     if(socketNum>3)
         socketNum = 1;
 #if defined __DEBUG__
-    qDebug()<<"客户端编号为"<<socketNum;
+    qDebug()<<"client id:"<<socketNum;
 #endif
     /*创建一个线程用于执行与客户端的工作*/
     Mythread *thread = new Mythread(socketDescriptor,socketNum,0);

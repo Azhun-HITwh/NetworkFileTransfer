@@ -28,9 +28,17 @@ Widget::Widget(QWidget *parent) :
 
     clearVariation();
     FILE *fp;
-    if((fp = fopen("./FileList/FILELIST.TXT","w+"))==NULL)
+    QDir dir;
+    QString curdir = dir.currentPath() + "/FileList/";
+#if defined __DEBUG__
+    qDebug()<< curdir << endl;
+#endif
+    QString fpath = curdir + "FILELIST.txt";
+    if(!dir.exists(curdir))
+        dir.mkpath(curdir);
+    if((fp = fopen(fpath.toLocal8Bit().data(),"w+"))==NULL)
     {
-        qDebug()<<"Clear FILELIST.TXT error!";
+        qDebug()<<"Clear FILELIST.txt error!";
     }
     fclose(fp);
     tcpSocket = new QTcpSocket();
@@ -91,7 +99,7 @@ void Widget::sendFile(QString path)
     /*获取文件大小*/
     transferData.totalBytes  = transferData.localFile->size();
 #if defined __DEBUG__
-    qDebug()<<"发送文件的内容大小"<<transferData.totalBytes;
+    qDebug()<<"send file size:"<<transferData.totalBytes;
 #endif
     QDataStream sendOut(&transferData.inOrOutBlock,QIODevice::WriteOnly);
 
@@ -100,7 +108,7 @@ void Widget::sendFile(QString path)
     QString currentFilename = transferData.fileName.right(transferData.fileName.size()
                                                 -transferData.fileName.lastIndexOf('/')-1);
 #if defined __DEBUG__
-    qDebug()<<"发送文件的名字"<<currentFilename;
+    qDebug()<<"send file name:"<<currentFilename;
 #endif
 
     /*保留总大小信息空间、命令、文件名大小信息空间、然后输入文件名*/
@@ -113,20 +121,20 @@ void Widget::sendFile(QString path)
     sendOut << transferData.totalBytes<<_TRANSFER_FILE_
             <<qint64((transferData.inOrOutBlock.size()-(sizeof(qint64)*3)));
 #if defined __DEBUG__
-    qDebug()<<"加上文件头文件的总大小"<<transferData.totalBytes
-           <<"发送的命令为"<<_TRANSFER_FILE_
-            <<"文件头的大小"<<transferData.inOrOutBlock.size()
-           <<"文件名字的大小"<<qint64((transferData.inOrOutBlock.size()-(sizeof(qint64)*3)));
+    qDebug()<<"total size incl. header:"<<transferData.totalBytes
+           <<"send command:"<<_TRANSFER_FILE_
+            <<"size of header:"<<transferData.inOrOutBlock.size()
+           <<"size of file name:"<<qint64((transferData.inOrOutBlock.size()-(sizeof(qint64)*3)));
 #endif
 
     qint64 sum = tcpSocket->write(transferData.inOrOutBlock);
 #if defined __DEBUG__
     //qDebug()<<transferData.inOrOutBlock;
-    qDebug()<<"sum"<<sum<<endl;
+    qDebug()<<"sum:"<<sum<<endl;
 #endif
     transferData.bytesToWrite = transferData.totalBytes - sum;
 #if defined __DEBUG__
-    qDebug()<<"文件内容的大小"<<transferData.bytesToWrite;
+    qDebug()<<"size of file:"<<transferData.bytesToWrite;
 #endif
 
     /*表示数据没有发送完*/
@@ -163,9 +171,9 @@ void Widget::receiveFile()
                     >> transferData.fileNameSize >> temp;
             transferData.bytesReceived += sizeof(qint64)*3;
 #if defined __DEBUG__
-            qDebug()<< "文件以及头信息总大小"<<transferData.totalBytes
-                    << "接收的命令"<<transferData.command
-                    << "接收文件名字大小"<<transferData.fileNameSize;
+            qDebug()<< "total size:"<<transferData.totalBytes
+                    << "recv. command:"<<transferData.command
+                    << "recv. file size:"<<transferData.fileNameSize;
 #endif
         }
         if(tcpSocket->bytesAvailable()>=transferData.fileNameSize
@@ -196,15 +204,27 @@ void Widget::receiveFile()
             {
                 if(SYNFlag == 1)
                 {
-                    tempFileName = "./FileList/";
+                    QDir dir;
+                    QString curdir = dir.currentPath() + "/FileList/";
+                    if(!dir.exists(curdir))
+                        dir.mkpath(curdir);
+                    tempFileName = curdir;
                 }
                 else if(DOWNFlag == 1)
                 {
-                    tempFileName = "./DownloadFile/";
+                    QDir dir;
+                    QString curdir = dir.currentPath() + "/DownloadFile/";
+                    if(!dir.exists(curdir))
+                        dir.mkpath(curdir);
+                    tempFileName = curdir;
                 }
                 else
                 {
-                    tempFileName = "./ClientFile/";
+                    QDir dir;
+                    QString curdir = dir.currentPath() + "/ClientFile/";
+                    if(!dir.exists(curdir))
+                        dir.mkpath(curdir);
+                    tempFileName = curdir;
                 }
                 tempFileName += transferData.fileName;
                 /*创建本地文件*/
@@ -276,7 +296,7 @@ void Widget::clearVariation()
 
 void Widget::diaplayFileListForListWidget()
 {
-   QFile filelist("./FileList/FILELIST.TXT");
+   QFile filelist("./FileList/FILELIST.txt");
    if(!filelist.open(QFile::ReadOnly|QFile::Text))
    {
        qDebug()<<"open filelist.txt error!"<<endl;
@@ -405,7 +425,7 @@ void Widget::on_SynFilePtn_clicked()
     transferData.bytesToWrite = transferData.totalBytes - sum;
 #if defined __DEBUG__
     qDebug()<<"sum"<<sum;
-    qDebug()<<"文件内容大小"<<transferData.bytesToWrite;
+    qDebug()<<"size of content:"<<transferData.bytesToWrite;
 #endif
     transferData.inOrOutBlock.resize(0);
     sleep(100);
@@ -441,7 +461,7 @@ void Widget::on_DownloadPB_clicked()
         return;
     transferData.fileName = downloadfile;
  #if defined __DEBUG__
-    qDebug()<<"发送数据的总大小"<<transferData.totalBytes;
+    qDebug()<<"total size recv.:"<<transferData.totalBytes;
 #endif
     QDataStream sendOut(&transferData.inOrOutBlock,QIODevice::WriteOnly);
     /*设置版本*/
@@ -451,8 +471,8 @@ void Widget::on_DownloadPB_clicked()
     /*总的大小是包含总大小信息、文件名大小信息、文件名和实际文件大小的总和*/
     transferData.totalBytes += transferData.inOrOutBlock.size();
 #if defined __DEBUG__
-    qDebug()<<"加上文件头信息的总大小"<<transferData.totalBytes<<"文件头信息的大小"
-           <<transferData.inOrOutBlock.size()<<"文件名字为"<<transferData.fileName;
+    qDebug()<<"total size:"<<transferData.totalBytes<<"size of header"
+           <<transferData.inOrOutBlock.size()<<"file name:"<<transferData.fileName;
 #endif
     sendOut.device()->seek(0);
     /*填充实际的存储空间*/
@@ -461,8 +481,8 @@ void Widget::on_DownloadPB_clicked()
     int sum = tcpSocket->write(transferData.inOrOutBlock);
     transferData.bytesToWrite = transferData.totalBytes - sum;
 #if defined __DEBUG__
-    qDebug()<<"sum"<<sum<<endl;
-    qDebug()<<"文件内容大小"<<transferData.bytesToWrite;
+    qDebug()<<"sum:"<<sum<<endl;
+    qDebug()<<"file content size:"<<transferData.bytesToWrite;
 #endif
     transferData.inOrOutBlock.resize(0);
 }

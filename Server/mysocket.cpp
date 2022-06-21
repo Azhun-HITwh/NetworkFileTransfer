@@ -36,7 +36,7 @@ void Mysocket::sendFile(QString path)
     }
     transferData.totalBytes  = transferData.localFile->size();//获取文件大小
 #if defined __DEBUG__
-    qDebug()<<"发送文件的内容大小"<<transferData.totalBytes;
+    qDebug()<<"content size:"<<transferData.totalBytes;
 #endif
     QDataStream sendOut(&transferData.inOrOutBlock,QIODevice::WriteOnly);
 
@@ -45,7 +45,7 @@ void Mysocket::sendFile(QString path)
     QString currentFilename = transferData.fileName.right(transferData.fileName.size()
                                                 -transferData.fileName.lastIndexOf('/')-1);
 #if defined __DEBUG__
-    qDebug()<<"发送文件的名字"<<currentFilename;
+    qDebug()<<"file sent name:"<<currentFilename;
 #endif
 
     /*保留总大小信息空间、命令、文件名大小信息空间、然后输入文件名*/
@@ -53,9 +53,9 @@ void Mysocket::sendFile(QString path)
     /*总的大小*/
     transferData.totalBytes += transferData.inOrOutBlock.size();
 #if defined __DEBUG__
-    qDebug()<<"加上文件头文件的总大小"<<transferData.totalBytes
-            <<"文件头的大小"<<transferData.inOrOutBlock.size()
-           <<"文件名字的大小"<<qint64((transferData.inOrOutBlock.size()-(sizeof(qint64)*3)));
+    qDebug()<<"total size incl. header:"<<transferData.totalBytes
+            <<"size of header:"<<transferData.inOrOutBlock.size()
+           <<"size of file name:"<<qint64((transferData.inOrOutBlock.size()-(sizeof(qint64)*3)));
     qDebug()<<transferData.inOrOutBlock;
 #endif
     sendOut.device()->seek(0);
@@ -65,11 +65,11 @@ void Mysocket::sendFile(QString path)
 
     qint64 sum = write(transferData.inOrOutBlock);
 #if defined __DEBUG__
-    qDebug()<<"sum"<<sum<<endl;
+    qDebug()<<"sum:"<<sum<<endl;
 #endif
     transferData.bytesToWrite = transferData.totalBytes - sum;
 #if defined __DEBUG__
-    qDebug()<<"文件内容的大小"<<transferData.bytesToWrite;
+    qDebug()<<"size of file:"<<transferData.bytesToWrite;
 #endif
     //transferData.inOrOutBlock.resize(0);
     /*表示数据没有发送完*/
@@ -130,7 +130,7 @@ void Mysocket::reveiveData()
         return;
     }
 #if defined __DEBUG__
-    qDebug()<<"套接字中的数据大小="<<bytesAvailable();
+    qDebug()<<"data size in socket="<<bytesAvailable();
 #endif
 
     QDataStream in(this);
@@ -143,7 +143,7 @@ void Mysocket::reveiveData()
     if(transferData.bytesReceived <= sizeof(qint64)*3)
     {
 #if defined __DEBUG__
-        qDebug()<<"套接字中可读数据"<<bytesAvailable();
+        qDebug()<<"ava. size in socket"<<bytesAvailable();
 #endif
         if(bytesAvailable()>=sizeof(qint64)*3
                 &&(transferData.fileNameSize==0))
@@ -153,9 +153,9 @@ void Mysocket::reveiveData()
                >> transferData.fileNameSize >> temp;
             transferData.bytesReceived += sizeof(qint64)*3;
 #if defined __DEBUG__
-            qDebug()<< "文件以及头信息总大小"<<transferData.totalBytes
-                    << "接收的命令"<<transferData.command
-                    << "接收文件名字大小"<<transferData.fileNameSize;
+            qDebug()<< "total size:"<<transferData.totalBytes
+                    << "command:"<<transferData.command
+                    << "receive file size:"<<transferData.fileNameSize;
 #endif
 #if defined __DEBUG__
             if(bytesAvailable())
@@ -190,7 +190,12 @@ void Mysocket::reveiveData()
             transferfileflag = 1;
             if(transferData.fileNameSize != 0)
             {
-                QString tempfilename("/Users/azhun/ReceiveFile/");
+                QDir dir;
+                QString curdir = dir.currentPath() + "/ReceiveFile/";
+//                QString fpath = curdir + "FILELIST.txt";
+                if(!dir.exists(curdir))
+                    dir.mkpath(curdir);
+                QString tempfilename(curdir);
                 tempfilename += transferData.fileName;
                 qDebug()<<tempfilename;
                 /*创建本地文件*/
@@ -207,7 +212,10 @@ void Mysocket::reveiveData()
         {
             synfilelistflag = 1;
             clearVariation();
-            sendFile("./FileList/FILELIST.TXT");
+            QDir dir;
+            QString curdir = dir.currentPath() + "/FileList/";
+            curdir += "FILELIST.txt";
+            sendFile(curdir);
         }
         break;
         case _DOWNLOAD_FILE_ :
@@ -215,7 +223,11 @@ void Mysocket::reveiveData()
             downflag = 1;
             QString downloadFilePath;
             clearVariation();
-            downloadFilePath = this->findDownloadFile("./ServerFile/",transferData.fileName);
+            QDir dir;
+            QString curdir = dir.currentPath() + "/ServerFile/";
+            if(!dir.exists(curdir))
+                dir.mkpath(curdir);
+            downloadFilePath = this->findDownloadFile(curdir,transferData.fileName);
             sendFile(downloadFilePath);
         }
         break;
@@ -287,7 +299,7 @@ QString Mysocket::findDownloadFile(QString path, QString fileName)
         if(info.isFile())
         {
 #ifdef __DEBUG__
-            qDebug()<<"下载文件的路径为："<<info.absoluteFilePath();
+            qDebug()<<"Download file path:"<<info.absoluteFilePath();
 #endif
             return info.absoluteFilePath();
         }

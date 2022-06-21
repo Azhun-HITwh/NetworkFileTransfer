@@ -19,9 +19,17 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle(tr("局域网文件传输服务器"));
     /*清空列表文件*/
-    if((fp = fopen("./FileList/FILELIST.TXT","w+"))==NULL)
+    QDir dir;
+    QString curdir = dir.currentPath() + "/FileList/";
+#if defined __DEBUG__
+    qDebug()<< curdir << endl;
+#endif
+    QString fpath = curdir + "FILELIST.txt";
+    if(!dir.exists(curdir))
+        dir.mkpath(curdir);
+    if((fp = fopen(fpath.toLocal8Bit().data(),"w+"))==NULL)
     {
-        qDebug()<<"Clear FILELIST.TXT error!";
+        qDebug()<<"Clear FILELIST.txt error!";
     }
     fclose(fp);
     server = new Myserver(this);
@@ -154,11 +162,17 @@ void Widget::getSendFileList(QString path)
 //        qDebug()<<"Open FILELIST.TXT failed!";
 //        return;
 //    }
-    QFile filelist("./FileList/FILELIST.TXT");
+    QDir tmpdir;
+    QString curdir = tmpdir.currentPath() + "/FileList/";
+#if defined __DEBUG__
+    qDebug()<< curdir << endl;
+#endif
+    QString fpath = curdir + "FILELIST.txt";
+    QFile filelist(fpath);
     QTextStream out(&filelist);
     if(!filelist.open(QFile::WriteOnly|QFile::Text))
     {
-        qDebug()<<"write FILELIST.TXT error!"<<endl;
+        qDebug()<<"write FILELIST.txt error!"<<endl;
         return;
     }
     QDir dir(path);
@@ -256,7 +270,7 @@ void Widget::doubleClickedItem()
     /*获得双击项文本*/
     QString str = ui->listWidget->currentItem()->text();
 #if defined __DEBUG__
-    qDebug()<<"双击项文本内容str为"<<str;
+    qDebug()<<"double clicked content:(str)"<<str;
 #endif
     QDir dir;
     /*设置路径为添加文件的路径*/
@@ -265,7 +279,7 @@ void Widget::doubleClickedItem()
     dir.cd(str);
     dirPath = dir.absolutePath();
 #if defined __DEBUG__
-    qDebug()<<"当前文件绝对路径为"<<dirPath;
+    qDebug()<<"Absolute path is:"<<dirPath;
 #endif
     /*更新列表文件内容*/
     this->getSendFileList(dirPath);
