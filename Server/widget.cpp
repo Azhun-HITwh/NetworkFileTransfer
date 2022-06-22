@@ -48,9 +48,13 @@ Widget::Widget(QWidget *parent) :
     ui->LBstate2->setText(tr("断开"));
     ui->LBstate3->setText(tr("断开"));
 
+    /* 上传文件按钮绑定 */
     connect(ui->pushButton,&QPushButton::clicked,this,&Widget::fileTranferButtonSlot);
+    /* 添加文件夹按钮绑定 */
     connect(ui->AddFilePB,&QPushButton::clicked,this,&Widget::addFilePBSlot);
+    /* 删除条目按钮绑定 */
     connect(ui->DelFilePB,&QPushButton::clicked,this,&Widget::deleteFileListItem);
+    /* widget list双击按钮绑定 */
     connect(ui->listWidget,&QAbstractItemView::doubleClicked,this,&Widget::doubleClickedItem);
 }
 

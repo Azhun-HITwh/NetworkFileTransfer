@@ -23,7 +23,7 @@ Mysocket::~Mysocket()
 void Mysocket::sendFile(QString path)
 {
 #if defined __DEBUG__
-    qDebug()<<"Socket send file name is"<<path;
+    qDebug()<<"Socket send file name (full path) is"<<path;
 #endif
     /*初始化发送字节为0*/
     transferData.bytesWritten = 0;
