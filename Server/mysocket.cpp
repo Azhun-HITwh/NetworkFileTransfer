@@ -76,7 +76,7 @@ void Mysocket::sendFile(QString path)
     if(transferData.bytesToWrite>0)
     {
         /*发送文件内容部分*/
-        transferData.inOrOutBlock = transferData.localFile->readAll();
+        transferData.inOrOutBlock = (transferData.localFile->readAll());
         write(transferData.inOrOutBlock);
         transferData.inOrOutBlock.resize(0);
     }
@@ -244,6 +244,11 @@ void Mysocket::reveiveData()
     {
         transferData.bytesReceived += bytesAvailable();
         transferData.inOrOutBlock = readAll();
+        if(!transferData.localFile->open(QFile::WriteOnly))
+        {
+            qDebug()<<"open local file error!";
+            return;
+        }
         transferData.localFile->write(transferData.inOrOutBlock);
         transferData.inOrOutBlock.resize(0);
     }

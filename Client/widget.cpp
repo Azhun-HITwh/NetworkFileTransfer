@@ -296,7 +296,10 @@ void Widget::clearVariation()
 
 void Widget::diaplayFileListForListWidget()
 {
-   QFile filelist("./FileList/FILELIST.txt");
+   QDir dir;
+   QString curdir = dir.currentPath() + "/FileList/";
+   QString fpath = curdir + "FILELIST.txt";
+   QFile filelist(fpath);
    if(!filelist.open(QFile::ReadOnly|QFile::Text))
    {
        qDebug()<<"open filelist.txt error!"<<endl;

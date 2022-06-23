@@ -128,7 +128,7 @@ void Widget::addFilePBSlot()
     dirPath = QFileDialog::getExistingDirectory(this,0,"./");
     QDir dir(dirPath);
 #if defined __DEBUG__
-    qDebug()<<"Open dir path"<<dirPath;
+    qDebug()<<"Open dir path:"<<dirPath;
 #endif
     if(dirPath.isEmpty())
         return;
@@ -174,7 +174,7 @@ void Widget::getSendFileList(QString path)
     QString fpath = curdir + "FILELIST.txt";
     QFile filelist(fpath);
     QTextStream out(&filelist);
-    if(!filelist.open(QFile::WriteOnly|QFile::Text))
+    if(!filelist.open(QFile::WriteOnly|QFile::Text|QFile::Append))
     {
         qDebug()<<"write FILELIST.txt error!"<<endl;
         return;
