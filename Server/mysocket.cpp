@@ -245,7 +245,7 @@ void Mysocket::reveiveData()
     {
         transferData.bytesReceived += bytesAvailable();
         transferData.inOrOutBlock = readAll();
-        if(!transferData.localFile->open(QFile::WriteOnly))
+        if(!transferData.localFile->open(QFile::WriteOnly|QFile::Append))
         {
             qDebug()<<"open local file error!";
             return;
