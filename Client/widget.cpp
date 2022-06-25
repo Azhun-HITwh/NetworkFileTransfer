@@ -484,7 +484,7 @@ void Widget::on_DownloadPB_clicked()
     int sum = tcpSocket->write(transferData.inOrOutBlock);
     transferData.bytesToWrite = transferData.totalBytes - sum;
 #if defined __DEBUG__
-    qDebug()<<"sum:"<<sum<<endl;
+    qDebug()<<"sum:"<<sum;
     qDebug()<<"file content size:"<<transferData.bytesToWrite;
 #endif
     transferData.inOrOutBlock.resize(0);

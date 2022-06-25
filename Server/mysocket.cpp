@@ -65,7 +65,7 @@ void Mysocket::sendFile(QString path)
 
     qint64 sum = write(transferData.inOrOutBlock);
 #if defined __DEBUG__
-    qDebug()<<"sum:"<<sum<<endl;
+    qDebug()<<"sum:"<<sum;
 #endif
     transferData.bytesToWrite = transferData.totalBytes - sum;
 #if defined __DEBUG__
@@ -206,8 +206,8 @@ void Mysocket::reveiveData()
                     return;
                 }
             }
-        }
         break;
+        }
         case _TRANSFER_LIST_ :
         {
             synfilelistflag = 1;
@@ -216,8 +216,8 @@ void Mysocket::reveiveData()
             QString curdir = dir.currentPath() + "/FileList/";
             curdir += "FILELIST.txt";
             sendFile(curdir);
-        }
         break;
+        }
         case _DOWNLOAD_FILE_ :
         {
             downflag = 1;
@@ -229,17 +229,18 @@ void Mysocket::reveiveData()
                 dir.mkpath(curdir);
             downloadFilePath = this->findDownloadFile(curdir,transferData.fileName);
             sendFile(downloadFilePath);
-        }
         break;
+        }
         case _TRANSFER_ACK_ :
         {
             qDebug()<<"Send file success!";
-        }
         break;
+        }
         default:
             qDebug()<<"Receive command nulity!";
         break;
     }
+    qDebug()<<transferData.bytesReceived<<transferData.totalBytes;
     if(transferData.bytesReceived < transferData.totalBytes)
     {
         transferData.bytesReceived += bytesAvailable();
@@ -252,7 +253,7 @@ void Mysocket::reveiveData()
         transferData.localFile->write(transferData.inOrOutBlock);
         transferData.inOrOutBlock.resize(0);
     }
-    if(transferData.bytesReceived == transferData.totalBytes)
+    if(transferData.bytesReceived >= transferData.totalBytes)
     {
         clearVariation();
         if(transferfileflag == 1)
