@@ -261,23 +261,28 @@ void Mysocket::reveiveData()
 #endif
     if(transferData.bytesReceived == transferData.totalBytes)
     {
-        clearVariation();
-        if(transferfileflag == 1)
+        if(transferData.bytesReceived != 0)
         {
-            transferfileflag = 0;
-            transferData.localFile->close();
-            qDebug()<<"Receive file success!";
-        }
-        else if(synfilelistflag == 1)
-        {
-            synfilelistflag = 0;
-            qDebug()<<"Request file list success!";
-        }
-        else if(downflag == 1)
-        {
+            clearVariation();
+            if(transferfileflag == 1)
+            {
+                transferfileflag = 0;
+                transferData.localFile->close();
+                qDebug()<<"Receive file success!";
+            }
+            else if(synfilelistflag == 1)
+            {
+                synfilelistflag = 0;
+                qDebug()<<"Request file list success!";
+            }
+            else if(downflag == 1)
+            {
+                downflag = 0;
+                qDebug()<<"Download file success!";
+            }
+        } else
             downflag = 0;
-            qDebug()<<"Download file success!";
-        }
+            qDebug()<<"Download file failed and no content is sent!";
     }
 }
 
@@ -316,5 +321,8 @@ QString Mysocket::findDownloadFile(QString path, QString fileName)
             return info.absoluteFilePath();
         }
     }
+#ifdef __DEBUG__
+            qDebug()<<"No file found in ServerFile folder !!!";
+#endif
     return QString();
 }
