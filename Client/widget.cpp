@@ -130,7 +130,7 @@ void Widget::sendFile(QString path)
     qint64 sum = tcpSocket->write(transferData.inOrOutBlock);
 #if defined __DEBUG__
     //qDebug()<<transferData.inOrOutBlock;
-    qDebug()<<"sum:"<<sum<<endl;
+    qDebug()<<"sum:"<<sum;
 #endif
     transferData.bytesToWrite = transferData.totalBytes - sum;
 #if defined __DEBUG__
@@ -414,11 +414,11 @@ void Widget::on_SynFilePtn_clicked()
     sendOut.setVersion(QDataStream::Qt_5_7);
     QString currentfilename;
     currentfilename = " ";
-    /*保留总大小信息空间、文件名大小信息空间、然后输入文件名*/
+    /*保留总大小信息空间、命令、文件名大小信息空间、然后输入文件名*/
     sendOut << qint64(0) << qint64(0) << qint64(0) << currentfilename;
-    /*总的大小是包含总大小信息、文件名大小信息、文件名和实际文件大小的总和*/
+    /*总的大小是包含总大小信息、命令、文件名大小信息、文件名和实际文件大小的总和*/
     transferData.totalBytes += transferData.inOrOutBlock.size();
-
+    /*从0位置开始写入*/
     sendOut.device()->seek(0);
     /*填充实际的存储空间*/
     sendOut << transferData.totalBytes << _TRANSFER_LIST_

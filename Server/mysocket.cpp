@@ -155,7 +155,7 @@ void Mysocket::reveiveData()
 #if defined __DEBUG__
             qDebug()<< "total size:"<<transferData.totalBytes
                     << "command:"<<transferData.command
-                    << "receive file size:"<<transferData.fileNameSize;
+                    << "receive file name size:"<<transferData.fileNameSize;
 #endif
 #if defined __DEBUG__
             if(bytesAvailable())
@@ -178,7 +178,7 @@ void Mysocket::reveiveData()
 #if defined __DEBUG__
             if(bytesAvailable())
             {
-                qDebug()<<"socket have data!";
+                qDebug()<<"socket have file content data!";
             }
 #endif
         }
@@ -200,11 +200,12 @@ void Mysocket::reveiveData()
                 qDebug()<<tempfilename;
                 /*创建本地文件*/
                 transferData.localFile = new QFile(tempfilename);
-                if(!transferData.localFile->open(QFile::WriteOnly))
-                {
-                    qDebug()<<"open local file error!";
-                    return;
-                }
+                /*no need to open here because no content is written into it*/
+//                if(!transferData.localFile->open(QFile::WriteOnly))
+//                {
+//                    qDebug()<<"open local file error!";
+//                    return;
+//                }
             }
         break;
         }
@@ -240,7 +241,9 @@ void Mysocket::reveiveData()
             qDebug()<<"Receive command nulity!";
         break;
     }
-    qDebug()<<transferData.bytesReceived<<transferData.totalBytes;
+#if defined __DEBUG__
+        qDebug()<<transferData.bytesReceived<<transferData.totalBytes;
+#endif
     if(transferData.bytesReceived < transferData.totalBytes)
     {
         transferData.bytesReceived += bytesAvailable();
@@ -253,7 +256,10 @@ void Mysocket::reveiveData()
         transferData.localFile->write(transferData.inOrOutBlock);
         transferData.inOrOutBlock.resize(0);
     }
-    if(transferData.bytesReceived >= transferData.totalBytes)
+#if defined __DEBUG__
+        qDebug()<<transferData.bytesReceived<<transferData.totalBytes;
+#endif
+    if(transferData.bytesReceived == transferData.totalBytes)
     {
         clearVariation();
         if(transferfileflag == 1)
